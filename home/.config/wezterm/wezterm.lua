@@ -44,4 +44,12 @@ wezterm.on("window-focus-changed", function(window)
 	window:set_config_overrides(overrides)
 end)
 
+-- Windows: start PowerShell 7 (not cmd.exe / Windows PowerShell 5.1) so the
+-- pwsh profile from bootstrap-windows.ps1 (starship, suggestions, aliases) loads.
+if wezterm.target_triple:find("windows") then
+	config.default_prog = { "pwsh.exe", "-NoLogo" }
+	config.win32_system_backdrop = "Acrylic" -- stands in for macos_window_background_blur
+	config.font_size = 11.0
+end
+
 return config
