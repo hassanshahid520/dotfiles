@@ -12,13 +12,26 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+
+    # Linux (Ubuntu etc.): standalone home-manager on the NixOS release branch.
+    nixpkgs-linux.url = "github:NixOS/nixpkgs/nixos-26.05";
+    home-manager-linux.url = "github:nix-community/home-manager/release-26.05";
+    home-manager-linux.inputs.nixpkgs.follows = "nixpkgs-linux";
   };
 
-  outputs = inputs@{ self, nix-darwin, nix-homebrew, home-manager, nixpkgs }:
+  outputs = inputs@{ self, nix-darwin, nix-homebrew, home-manager, nixpkgs, nixpkgs-linux, home-manager-linux }:
     let
       # The one username line to change if this isn't your machine.
       # bootstrap.sh offers to rewrite this for you if your macOS username differs.
       user = "kunchen";
+
+      # Linux takes the username from $USER at build time (hence --impure),
+      # so the same flake works on any machine/account.
+      mkLinuxHome = system: home-manager-linux.lib.homeManagerConfiguration {
+        pkgs = import nixpkgs-linux { inherit system; config.allowUnfree = true; };
+        extraSpecialArgs = { user = builtins.getEnv "USER"; };
+        modules = [ ./home.nix ./linux.nix ];
+      };
     in
     {
       darwinConfigurations."mac" = nix-darwin.lib.darwinSystem {
@@ -35,5 +48,8 @@
           }
         ];
       };
+
+      homeConfigurations."linux" = mkLinuxHome "x86_64-linux";
+      homeConfigurations."linux-aarch64" = mkLinuxHome "aarch64-linux";  # Jetson, Raspberry Pi, ARM VMs
     };
 }
