@@ -53,4 +53,13 @@ config.font_size = 11.0
 config.window_decorations = "INTEGRATED_BUTTONS | RESIZE"
 config.hide_tab_bar_if_only_one_tab = false
 end
+
+if wezterm.target_triple:find("linux") then
+  config.font = wezterm.font_with_fallback({
+    "Hack Nerd Font",
+    "Noto Sans Symbols 2",
+    "Symbola",
+  })
+end
+
 return config
