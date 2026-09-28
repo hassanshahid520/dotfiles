@@ -47,9 +47,10 @@ end)
 -- Windows: start PowerShell 7 (not cmd.exe / Windows PowerShell 5.1) so the
 -- pwsh profile from bootstrap-windows.ps1 (starship, suggestions, aliases) loads.
 if wezterm.target_triple:find("windows") then
-	config.default_prog = { "pwsh.exe", "-NoLogo" }
-	config.win32_system_backdrop = "Acrylic" -- stands in for macos_window_background_blur
-	config.font_size = 11.0
+config.default_prog = { "pwsh.exe", "-NoLogo" }
+config.font_size = 11.0
+-- tab bar doubles as the title bar: drag its empty space, buttons on the right
+config.window_decorations = "INTEGRATED_BUTTONS | RESIZE"
+config.hide_tab_bar_if_only_one_tab = false
 end
-
 return config
