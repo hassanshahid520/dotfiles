@@ -6,13 +6,12 @@ This repo is built for macOS (nix-darwin and home-manager). Neither runs on Wind
 
 | macOS (Nix) | Windows (`bootstrap-windows.ps1`) |
 |---|---|
-| Homebrew casks and Nix packages | winget: Git, PowerShell 7, WezTerm, Neovim, ripgrep, fd, fzf, jq, lazygit, Starship. Also installs Hack Nerd Font (per-user) and Claude Code |
+| Homebrew casks and Nix packages | winget: Git, PowerShell 7, WezTerm, Neovim, ripgrep, fd, fzf, jq, lazygit, Starship. Also installs Hack Nerd Font (per-user), Claude Code and herdr (official installer) |
 | `mkOutOfStoreSymlink` links | Symlinks for files and junctions for folders, all pointing into `~\.dotfiles\home` |
 | zsh + autosuggestions + syntax highlighting | PowerShell 7 with PSReadLine inline history suggestions (`Ctrl+f` accepts one) |
 | zsh aliases | Functions in the pwsh profile: `..`, `add`, `push`, `pull`, `m`, `cc`, `co` |
 | `programs.starship` | `~\.config\starship.toml` with the same prompt |
 | `system.defaults` | Dark mode, show file extensions, fast key repeat |
-| herdr | Skipped, because it only runs on macOS and Linux. Use WezTerm panes instead |
 
 ### Where the links point
 
@@ -22,6 +21,7 @@ This repo is built for macOS (nix-darwin and home-manager). Neither runs on Wind
 | `%LOCALAPPDATA%\nvim` | `home\.config\nvim` |
 | `~\.claude\settings.json` | `home\.claude\settings.json` |
 | `~\.claude\CLAUDE.md`, `~\.codex\AGENTS.md`, `~\.config\opencode\AGENTS.md` | `home\AGENTS.md` |
+| `%APPDATA%\herdr\config.toml` | `home\.config\herdr\config.toml` |
 | `~\.pi\agent\*` (only if `pi` is installed) | `home\.pi\agent\*` |
 
 ## Fresh-machine setup
@@ -90,6 +90,12 @@ if wezterm.target_triple:find("windows") then
   config.font_size = 11.0                   -- 15 is large on Windows
 end
 ```
+
+## herdr on Windows
+
+herdr runs natively on Windows (no WSL needed). Start it by typing `herdr` in WezTerm; the prefix key is `Ctrl+b`, as on the Mac. On Windows it reads its config from `%APPDATA%\herdr\config.toml`, which the script links to the repo. Run `herdr --help` to see which config path it resolved.
+
+Its Windows docs list a few limitations compared with macOS/Linux: no direct terminal attach, no live server handoff, and some cursor flicker in panes. See https://herdr.dev/docs/windows-beta/.
 
 ## Troubleshooting
 

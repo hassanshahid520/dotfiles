@@ -69,6 +69,13 @@ if (-not $SkipApps) {
   if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
     Invoke-RestMethod https://claude.ai/install.ps1 | Invoke-Expression
   } else { Write-Host "  ok  already installed" }
+
+  Step "Installing herdr"
+  if (-not (Get-Command herdr -ErrorAction SilentlyContinue)) {
+    # official installer, run in its own process so it can't end this script
+    powershell -NoProfile -ExecutionPolicy Bypass -c "irm https://herdr.dev/install.ps1 | iex"
+    Refresh-Path
+  } else { Write-Host "  ok  already installed" }
 }
 
 # ---------------------------------------------------------------- Switch to PowerShell 7
@@ -128,7 +135,9 @@ if (Get-Command pi -ErrorAction SilentlyContinue) {
   Link "$H\.pi\agent\models.json"   "$HOME\.pi\agent\models.json"
   Link "$H\.pi\agent\settings.json" "$HOME\.pi\agent\settings.json"
 }
-# herdr is skipped: it's a Homebrew-only (mac/Linux) tool.
+# herdr on Windows reads %APPDATA%\herdr\config.toml. Link just the file so herdr's
+# own runtime state in that folder stays out of the repo.
+Link "$H\.config\herdr\config.toml" "$env:APPDATA\herdr\config.toml"
 
 # ---------------------------------------------------------------- 4. Shell (programs.zsh + programs.starship)
 Step "Writing starship config"
