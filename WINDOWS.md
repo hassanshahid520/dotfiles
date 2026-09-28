@@ -21,7 +21,7 @@ This repo is built for macOS (nix-darwin and home-manager). Neither runs on Wind
 | `%LOCALAPPDATA%\nvim` | `home\.config\nvim` |
 | `~\.claude\settings.json` | `home\.claude\settings.json` |
 | `~\.claude\CLAUDE.md`, `~\.codex\AGENTS.md`, `~\.config\opencode\AGENTS.md` | `home\AGENTS.md` |
-| `%APPDATA%\herdr\config.toml` | `home\.config\herdr\config.toml` |
+| `%APPDATA%\herdr\config.toml` | Not a link. The script generates it from `home\.config\herdr\config.toml` and adds a Windows-only `default_shell` (see below) |
 | `~\.pi\agent\*` (only if `pi` is installed) | `home\.pi\agent\*` |
 
 ## Fresh-machine setup
@@ -93,7 +93,18 @@ end
 
 ## herdr on Windows
 
-herdr runs natively on Windows (no WSL needed). Start it by typing `herdr` in WezTerm; the prefix key is `Ctrl+b`, as on the Mac. On Windows it reads its config from `%APPDATA%\herdr\config.toml`, which the script links to the repo. Run `herdr --help` to see which config path it resolved.
+herdr runs natively on Windows (no WSL needed). Start it by typing `herdr` in WezTerm; the prefix key is `Ctrl+b`, as on the Mac. On Windows it reads its config from `%APPDATA%\herdr\config.toml`. Run `herdr --help` to see which config path it resolved.
+
+That file is generated, not linked. The script copies `home\.config\herdr\config.toml` and adds:
+
+```toml
+[terminal]
+default_shell = 'C:\Program Files\PowerShell\7\pwsh.exe'
+```
+
+Without this, herdr panes can open Windows PowerShell 5.1, which doesn't load the PowerShell 7 profile, so `cc`, `co`, the prompt and the suggestions are missing. The line can't go in the shared repo file because it would break herdr on macOS. **After editing the repo's herdr config, re-run `.\bootstrap-windows.ps1 -SkipApps`.**
+
+herdr keeps a background server running, so config changes only take effect after `herdr server stop` (this closes all herdr panes). Start `herdr` again afterwards.
 
 Its Windows docs list a few limitations compared with macOS/Linux: no direct terminal attach, no live server handoff, and some cursor flicker in panes. See https://herdr.dev/docs/windows-beta/.
 

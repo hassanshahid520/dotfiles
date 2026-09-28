@@ -135,9 +135,22 @@ if (Get-Command pi -ErrorAction SilentlyContinue) {
   Link "$H\.pi\agent\models.json"   "$HOME\.pi\agent\models.json"
   Link "$H\.pi\agent\settings.json" "$HOME\.pi\agent\settings.json"
 }
-# herdr on Windows reads %APPDATA%\herdr\config.toml. Link just the file so herdr's
-# own runtime state in that folder stays out of the repo.
-Link "$H\.config\herdr\config.toml" "$env:APPDATA\herdr\config.toml"
+# herdr on Windows reads %APPDATA%\herdr\config.toml. Panes need an explicit
+# default_shell pointing at PowerShell 7 (otherwise they may open Windows PowerShell 5.1,
+# which doesn't load this profile, so cc/co are missing). That line would break the
+# shared config on macOS, so on Windows the file is GENERATED from the repo copy:
+# edit home\.config\herdr\config.toml, then re-run this script.
+$herdrCfg = "$env:APPDATA\herdr\config.toml"
+New-Item -ItemType Directory -Force (Split-Path $herdrCfg) | Out-Null
+$old = Get-Item $herdrCfg -Force -ErrorAction SilentlyContinue
+if ($old -and $old.LinkType) { Remove-Item $herdrCfg -Force }   # replace earlier link
+$toml = (Get-Content "$H\.config\herdr\config.toml" -Raw).TrimEnd()
+$pwshExe = (Get-Command pwsh -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
+if ($pwshExe) {
+  $toml += "`r`n`r`n# added by bootstrap-windows.ps1 - edit the repo copy and re-run the script`r`n[terminal]`r`ndefault_shell = '$pwshExe'"
+}
+[IO.File]::WriteAllText($herdrCfg, $toml + "`r`n", (New-Object Text.UTF8Encoding $false))
+Write-Host "  $herdrCfg (generated, default_shell = $pwshExe)"
 
 # ---------------------------------------------------------------- 4. Shell (programs.zsh + programs.starship)
 Step "Writing starship config"
